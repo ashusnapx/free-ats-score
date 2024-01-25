@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 import google.generativeai as genai
-import fitz  # Import PyMuPDF
+import PyPDF2 as pdf
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -11,9 +11,7 @@ load_dotenv()
 genai.configure(api_key=os.getenv('GOOGLE_GEMINI_KEY'))
 
 input_prompt = '''
-As an ATS specialist, It should meticulously evaluate resumes in tech, software, and data science for a fierce job market. Provide a percentage match, identify keywords, and offer top-tier guidance.
-
-Add Missing Keywords, Typos. Check if leetcode, codeforces, atcoder, codechef, etc coding platforms links are provided or not
+As an ATS specialist, I meticulously evaluate resumes in tech, software, and data science for a fierce job market. Provide a percentage match, identify keywords, and offer top-tier guidance.
 
 1. **Contact Information:**
    - Full name
@@ -91,7 +89,9 @@ Add Missing Keywords, Typos. Check if leetcode, codeforces, atcoder, codechef, e
     - Track interactions or applications
     - Mention referrals or connections
 
-Check and mark all 16 points. Ignore irrelevant info. Consider industry-grade ATS like Oracle Taleo. 
+Check and mark all 16 points. Ignore irrelevant info. Consider industry-grade ATS like Oracle Taleo.
+
+Make a table in which it will have 3 columns, first column will show keywords in job description, 2nd column will show keywords in your resume, and third column will show keywords missing.
 
 *Resume:*
 {text}
@@ -101,20 +101,18 @@ Check and mark all 16 points. Ignore irrelevant info. Consider industry-grade AT
 '''
 
 # Function to get Gemini response
-# Function to get Gemini response
 def get_gemini_response(input):
     model = genai.GenerativeModel('gemini-pro')
     response = model.generate_content(input)
     return response.text
 
-# Function to extract text from PDF using PyMuPDF
+# Function to extract text from PDF
 def text_in_uploaded_pdf(uploaded_file):
-    doc = fitz.open(stream=uploaded_file.read(), filetype="pdf")
+    read = pdf.PdfReader(uploaded_file)
     text = ''
-    for page_num in range(doc.page_count):
-        page = doc[page_num]
-        page_text = page.get_text()
-        text += f"Page {page_num + 1}:\n{page_text}\n\n"
+    for page in range(len(read.pages)):
+        page_text = read.pages[page].extract_text()
+        text += f"Page {page + 1}:\n{page_text}\n\n"
     return text
 
 # Main Streamlit app
@@ -135,26 +133,30 @@ def main():
     # Resume upload
     uploaded_file = st.file_uploader('Upload your resume (PDF)', type='pdf', accept_multiple_files=False)
 
+    # Check ATS Score button
+    submit = st.button('Check ATS Score')
+
     # Display loading spinner while processing
-    with st.spinner('Calculating ATS Score...'):
-        if uploaded_file is not None and len(jd) > 50:
-            # Process the uploaded PDF
-            text = text_in_uploaded_pdf(uploaded_file)
+    if submit:
+            if uploaded_file is not None and len(jd) > 50:
 
-            # Display extracted text in a scrollable container
-            st.subheader('Text Extracted from PDF')
-            st.text_area(label='Extracted Text', value=text, height=400)
+                # Process the uploaded PDF
+                text = text_in_uploaded_pdf(uploaded_file)
 
-            # Get Gemini response
-            response = get_gemini_response(input_prompt.format(text=text, jd=jd))
+                # Get Gemini response
+                response = get_gemini_response(input_prompt.format(text=text, jd=jd))
 
-            # Display result
-            st.success('Your ATS score has been calculated successfully! 🚀')
-            st.markdown(response)
-
-            st.subheader('_Thanks for using the tool made by_ :blue[@ashusnapx] :sunglasses:')
-        elif uploaded_file is None or len(jd) <= 50:
-            st.warning('Please provide a detailed job description and upload your resume (PDF). 🧐')
+                # Display result
+                st.success('Your ATS score has been calculated successfully! 🚀')
+                st.subheader('ATS Score Results')
+                st.markdown(response)
+                st.subheader('_Thanks for using the tool made by_ :blue[@ashusnapx] :sunglasses:')
+            else:
+                # Display error messages
+                if len(jd) < 50:
+                    st.error('Please enter a detailed job description. 🧐')
+                elif uploaded_file is None:
+                    st.error('Please upload your resume (PDF). 🥲')
 
 if __name__ == "__main__":
     main()
