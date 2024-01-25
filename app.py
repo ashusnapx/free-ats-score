@@ -91,7 +91,7 @@ As an ATS specialist, I meticulously evaluate resumes in tech, software, and dat
 
 Check and mark all 16 points. Ignore irrelevant info. Consider industry-grade ATS like Oracle Taleo.
 
-Make a table in which it will have 3 columns, first column will show keywords in job description, 2nd column will show keywords in your resume, and third column will show keywords missing.
+Make a table in which it will have 3 columns, first column will show keywords in job description, 2nd column will show keywords in your resume, and third column will show keywords missing. Make another table considering of all 16 points mentioned above, add tick and cross as required.
 
 *Resume:*
 {text}
