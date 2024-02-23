@@ -59,7 +59,7 @@ Follow the on-screen instructions to paste the job description, upload your resu
 
 *Screenshot 1: ATS Score Results*
 
-![ATS Score Results](https://postimg.cc/XZDZCtYm)
+[![ATS Score Results](https://i.postimg.cc/NMQRWcqs/Screenshot-2024-02-23-at-3-27-35-PM.png)](https://postimg.cc/XZDZCtYm)
 
 ## Contributing
 
